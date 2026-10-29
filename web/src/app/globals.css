@@ -77,6 +77,9 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* Schibsted Grotesk ships with tabular figures on by default, which makes
+     commas and points in large numbers look wide. Turn them off everywhere… */
+  font-feature-settings: "tnum" 0;
 }
 
 :focus-visible {
@@ -86,7 +89,9 @@ body {
 }
 
 .num {
+  /* …and back on only where numbers sit in aligned columns. */
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
