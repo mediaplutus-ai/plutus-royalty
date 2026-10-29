@@ -806,7 +806,7 @@ end $$;
 create or replace function public.set_artist_bank_account(
   p_artist uuid, p_account text, p_ifsc text, p_bank text
 ) returns void
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 begin
   if not is_super_admin() and auth.uid() is not null then
     raise exception 'Only a Super Admin can change bank details';
@@ -821,7 +821,7 @@ begin
 end $$;
 
 create or replace function public.get_artist_bank_account(p_artist uuid) returns text
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare v text;
 begin
   if not is_super_admin() and auth.uid() is not null then
@@ -1134,3 +1134,6 @@ $$;
 grant select on v_royalty_lines, v_catalog to authenticated;
 grant execute on function dashboard_kpis(uuid, uuid) to authenticated;
 grant execute on function earnings_breakdown(text, date, date, uuid, uuid) to authenticated;
+revoke all on v_royalty_lines, v_catalog from anon;
+revoke execute on function dashboard_kpis(uuid, uuid) from anon;
+revoke execute on function earnings_breakdown(text, date, date, uuid, uuid) from anon;

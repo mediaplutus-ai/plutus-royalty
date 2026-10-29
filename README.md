@@ -48,10 +48,8 @@ plutus-royalty/
 ### 1. Supabase (database)
 1. Supabase project kholiye → left menu **SQL Editor** → **New query**.
 2. `supabase/SETUP_ALL_IN_ONE.sql` ka poora text paste karke **Run** dabaiye. "Success" aana chahiye.
-3. Bank details encrypt karne ki chaabi: naya query chalaiye (apna lamba random text daaliye):
-   ```sql
-   select vault.create_secret('YAHAN-KOI-LAMBA-RANDOM-TEXT-40-AKSHAR', 'payout_key');
-   ```
+3. Bank details encrypt karne ki chaabi: `supabase/AFTER_SETUP_vault_key.sql` ek baar chalaiye
+   (database khud random chaabi banata hai, kisi ko dikhti nahi).
 4. Pehla Super Admin: **Authentication → Users → Add user** se apna email/password banaiye, phir:
    ```sql
    update profiles set role = 'super_admin' where email = 'aapka@email.com';

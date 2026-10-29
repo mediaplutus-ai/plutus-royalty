@@ -301,3 +301,6 @@ $$;
 grant select on v_royalty_lines, v_catalog to authenticated;
 grant execute on function dashboard_kpis(uuid, uuid) to authenticated;
 grant execute on function earnings_breakdown(text, date, date, uuid, uuid) to authenticated;
+revoke all on v_royalty_lines, v_catalog from anon;
+revoke execute on function dashboard_kpis(uuid, uuid) from anon;
+revoke execute on function earnings_breakdown(text, date, date, uuid, uuid) from anon;
