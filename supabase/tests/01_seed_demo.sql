@@ -57,6 +57,7 @@ insert into royalty_lines (report_id, royalty_type, artist_id, source, territory
  ('40000000-0000-0000-0000-000000000001', 'publisher', '20000000-0000-0000-0000-000000000002', 'IPRS', 'IN', '2026-01-01', '2026-03-31', 'mechanical',   3000, 'Pehli Baarish', null, 'INABC2600002');
 
 select finalize_report('40000000-0000-0000-0000-000000000001');
+select publish_report('40000000-0000-0000-0000-000000000001');
 
 -- Report 2: PRS Q1 2026, paid directly to Kabir (admin-only) + one unmatched title
 insert into royalty_reports (id, label_id, source, royalty_type, period_start, period_end, file_name, uploaded_by)
@@ -68,6 +69,7 @@ insert into royalty_lines (report_id, royalty_type, artist_id, source, territory
  ('40000000-0000-0000-0000-000000000002', 'admin_only', '20000000-0000-0000-0000-000000000003', 'PRS', 'GB', '2026-01-01', '2026-03-31', 'performance',  500, 'Unknown Song XYZ');
 
 select finalize_report('40000000-0000-0000-0000-000000000002');
+select publish_report('40000000-0000-0000-0000-000000000002');
 
 -- Statement + invoice for Ravi
 select generate_statement('20000000-0000-0000-0000-000000000001', 'quarterly', '2026-01-01', '2026-03-31');

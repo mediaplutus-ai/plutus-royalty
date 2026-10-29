@@ -6,8 +6,9 @@ import { useFormStatus } from "react-dom";
 /** Result every Session 2 server action returns to its form. */
 export type ActionState = { error?: string; ok?: string } | undefined;
 
-export const inputCls =
-  "w-full rounded-md border border-line bg-surface px-3 py-2 text-ink placeholder:text-ink-3 disabled:opacity-60";
+import { inputCls } from "./styles";
+
+export { inputCls };
 
 export function Field({
   label,

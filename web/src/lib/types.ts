@@ -28,6 +28,9 @@ export interface Kpis {
   current_period_admin_only: number;
   pending_net: number;
   paid_net: number;
+  /** Plutus commission on royalties paid directly to rights holders (to invoice). */
+  admin_only_fee: number;
+  admin_only_fee_open: number;
 }
 
 export interface BreakdownRow {
@@ -55,6 +58,8 @@ export interface RoyaltyLine {
   artist_name: string | null;
   label_name: string | null;
   work_title: string | null;
+  licensee?: string | null;
+  distribution_code?: string | null;
 }
 
 export interface CatalogRow {
@@ -77,4 +82,13 @@ export interface NotificationRow {
   link: string | null;
   read_at: string | null;
   created_at: string;
+}
+
+export interface RoyaltyFilters {
+  q?: string;
+  licensee?: string;
+  territory?: string;
+  client?: string;
+  year?: string;
+  status?: string;
 }

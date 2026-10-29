@@ -23,8 +23,8 @@ select pg_temp.check('Ravi net = 8500',
   (select net_payable from royalty_lines where gross_amount = 10000), 8500.0000::numeric);
 select pg_temp.check('Meera falls back to label-wide 20%',
   (select commission_pct from royalty_lines where gross_amount = 5000), 20.00::numeric);
-select pg_temp.check('Admin-only line: zero commission',
-  (select commission_amount from royalty_lines where gross_amount = 7000), 0::numeric);
+select pg_temp.check('Admin-only line: Plutus fee 25% of 7000 to invoice (Session 3 rule)',
+  (select commission_amount from royalty_lines where gross_amount = 7000), 1750.0000::numeric);
 select pg_temp.check('Admin-only line: net = gross',
   (select net_payable from royalty_lines where gross_amount = 7000), 7000::numeric);
 select pg_temp.check('Admin-only line marked paid directly',

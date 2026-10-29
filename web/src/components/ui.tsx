@@ -26,6 +26,8 @@ const STATUS: Record<RoyaltyStatus | string, { label: string; icon: string; cls:
   invite_expired: { label: "Link expired", icon: "○", cls: "text-ink-3 bg-sunken border-line" },
   user_on: { label: "Can sign in", icon: "✓", cls: "text-ok bg-sunken border-ok/40" },
   user_off: { label: "Switched off", icon: "○", cls: "text-bad bg-sunken border-bad/40" },
+  published: { label: "Published", icon: "✓", cls: "text-ok bg-sunken border-ok/40" },
+  hidden: { label: "Hidden", icon: "◌", cls: "text-warn bg-sunken border-warn/40" },
 };
 
 export function StatusChip({ status }: { status: string }) {

@@ -9,6 +9,7 @@ import type {
   CatalogRow,
   Kpis,
   NotificationRow,
+  RoyaltyFilters,
   RoyaltyLine,
   RoyaltyType,
   Viewer,
@@ -72,6 +73,8 @@ export async function getKpis(): Promise<Kpis> {
     current_period_admin_only: num(r.current_period_admin_only),
     pending_net: num(r.pending_net),
     paid_net: num(r.paid_net),
+    admin_only_fee: num(r.admin_only_fee),
+    admin_only_fee_open: num(r.admin_only_fee_open),
   };
 }
 
@@ -127,4 +130,69 @@ export async function getNotifications(): Promise<NotificationRow[]> {
     .order("created_at", { ascending: false })
     .limit(30);
   return (data ?? []) as NotificationRow[];
+}
+
+/** Royalties page: one royalty type with the filters from the URL. */
+export async function getFilteredLines(type: RoyaltyType, f: RoyaltyFilters, limit = 1000): Promise<RoyaltyLine[]> {
+  if (isDemo()) {
+    const rows = (await getRoyaltyLines(type, 500)).filter(
+      (l) =>
+        (!f.q || (l.work_title ?? "").toLowerCase().includes(f.q.toLowerCase())) &&
+        (!f.territory || l.territory === f.territory) &&
+        (!f.client || (l.label_name ?? l.artist_name) === f.client) &&
+        (!f.year || l.period_start.startsWith(f.year)) &&
+        (!f.status || l.status === f.status) &&
+        (!f.licensee || (l.licensee ?? l.source) === f.licensee),
+    );
+    return rows.slice(0, limit);
+  }
+  const supabase = await createClient();
+  let q = supabase
+    .from("v_royalty_lines")
+    .select("*")
+    .eq("royalty_type", type)
+    .order("period_start", { ascending: false })
+    .order("gross_amount", { ascending: false })
+    .limit(limit);
+  if (f.q) q = q.ilike("work_title", `%${f.q.replace(/[%_]/g, "")}%`);
+  if (f.licensee) {
+    const v = f.licensee.replace(/"/g, "");
+    q = q.or(`licensee.eq."${v}",and(licensee.is.null,source.eq."${v}")`);
+  }
+  if (f.territory) q = q.eq("territory", f.territory);
+  if (f.client) q = q.or(`label_name.eq."${f.client.replace(/"/g, "")}",artist_name.eq."${f.client.replace(/"/g, "")}"`);
+  if (f.year && /^\d{4}$/.test(f.year)) q = q.gte("period_start", `${f.year}-01-01`).lte("period_start", `${f.year}-12-31`);
+  if (f.status) q = q.eq("status", f.status);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((l) => ({
+    ...l,
+    gross_amount: Number(l.gross_amount),
+    commission_amount: Number(l.commission_amount),
+    net_payable: Number(l.net_payable),
+  })) as RoyaltyLine[];
+}
+
+/** Values for the filter menus, from what this person is allowed to see. */
+export async function getFilterOptions(): Promise<{ licensees: string[]; territories: string[]; clients: string[]; years: string[] }> {
+  if (isDemo()) {
+    const lines = await getRoyaltyLines(undefined, 500);
+    const uniq = (xs: (string | null | undefined)[]) => [...new Set(xs.filter(Boolean) as string[])].sort();
+    return {
+      licensees: uniq(lines.map((l) => l.licensee ?? l.source)),
+      territories: uniq(lines.map((l) => l.territory)),
+      clients: uniq(lines.map((l) => l.label_name ?? l.artist_name)),
+      years: uniq(lines.map((l) => l.period_start.slice(0, 4))).reverse(),
+    };
+  }
+  const supabase = await createClient();
+  const dims = ["licensee", "territory", "client", "month"] as const;
+  const res = await Promise.all(dims.map((d) => supabase.rpc("earnings_breakdown", { p_dimension: d })));
+  const buckets = res.map((r) => ((r.data ?? []) as BreakdownRow[]).map((b) => b.bucket).filter(Boolean));
+  return {
+    licensees: [...buckets[0]].sort(),
+    territories: [...buckets[1]].sort(),
+    clients: [...buckets[2]].sort(),
+    years: [...new Set(buckets[3].map((m) => m.slice(0, 4)))].sort().reverse(),
+  };
 }

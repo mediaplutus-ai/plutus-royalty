@@ -138,6 +138,8 @@ export function demoKpis(role: AppRole): Kpis {
     current_period_admin_only: sum(adm.filter((l) => l.period_start === cur), (l) => l.gross_amount),
     pending_net: sum(pub.filter((l) => ["pending", "approved", "on_hold"].includes(l.status)), (l) => l.net_payable),
     paid_net: sum(pub.filter((l) => l.status === "paid"), (l) => l.net_payable),
+    admin_only_fee: sum(adm, (l) => l.gross_amount * 0.15),
+    admin_only_fee_open: sum(adm, (l) => l.gross_amount * 0.15),
   };
 }
 

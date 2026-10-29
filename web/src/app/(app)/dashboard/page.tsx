@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { BarList, Legend, PeriodColumns } from "@/components/charts";
 import { Panel, StatusChip, TypeTag } from "@/components/ui";
-import { getBreakdown, getKpis, getRoyaltyLines, getViewer } from "@/lib/data";
+import { getClientCommissions } from "@/lib/admin-data";
+import { getBreakdown, getKpis, getRoyaltyLines, getViewer, isDemo } from "@/lib/data";
 import { money, periodLabel, territoryName } from "@/lib/format";
 import type { Kpis, Viewer } from "@/lib/types";
+import { CommissionPanel } from "./CommissionPanel";
 
 export default async function DashboardPage() {
   const [viewer, k, bySource, byTerritory, byMonth, latest] = await Promise.all([
@@ -16,9 +18,11 @@ export default async function DashboardPage() {
   ]);
 
   const monthLabel = (b: string) => periodLabel(`${b}-01`);
+  const commission = viewer.role === "super_admin" && !isDemo() ? await getClientCommissions() : null;
 
   return (
     <div className="space-y-6">
+      {commission && <CommissionPanel defaultPct={commission.defaultPct} clients={commission.clients} />}
       <MoneyFlow k={k} viewer={viewer} />
 
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line lg:grid-cols-4">
@@ -133,7 +137,15 @@ function MoneyFlow({ k, viewer }: { k: Kpis; viewer: Viewer }) {
       </h1>
       <p className="mt-2 max-w-2xl text-ink-2">
         Societies also paid <span className="font-semibold text-ink">{money(k.admin_only_lifetime)}</span> straight
-        to {who === "you" ? "you" : "the rights holders"}. Plutus only tracks that money and takes no commission on it.
+        to {who === "you" ? "you" : "the rights holders"}.
+        {k.admin_only_fee > 0 ? (
+          <>
+            {" "}Plutus&apos;s commission on that is <span className="font-semibold text-ink">{money(k.admin_only_fee)}</span>
+            {k.admin_only_fee_open > 0 ? <>, of which {money(k.admin_only_fee_open)} is still to be invoiced</> : null}.
+          </>
+        ) : (
+          " Plutus only tracks that money."
+        )}
       </p>
 
       <div className="mt-6" role="img" aria-label={`Of ${money(total)} earned: ${money(k.lifetime_net)} net, ${money(k.lifetime_commission)} Plutus commission, ${money(k.admin_only_lifetime)} paid directly`}>

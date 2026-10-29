@@ -285,3 +285,135 @@ export async function siteOrigin(): Promise<string> {
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   return `${proto}://${host}`;
 }
+
+// ---------------------------------------------------------------------------
+// Session 3: royalty reports (uploads)
+// ---------------------------------------------------------------------------
+
+export interface ReportRow {
+  id: string;
+  source: string;
+  royalty_type: "publisher" | "admin_only";
+  period_start: string;
+  period_end: string;
+  file_name: string | null;
+  file_path: string | null;
+  row_count: number;
+  unmatched_count: number;
+  total_gross: number;
+  declared_total: number | null;
+  status: string;
+  distribution_code: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
+const REPORT_COLS =
+  "id, source, royalty_type, period_start, period_end, file_name, file_path, row_count, unmatched_count, total_gross, declared_total, status, distribution_code, published_at, created_at";
+
+const toReport = (r: Record<string, unknown>) =>
+  ({
+    ...r,
+    total_gross: Number(r.total_gross ?? 0),
+    declared_total: r.declared_total == null ? null : Number(r.declared_total),
+  }) as ReportRow;
+
+export async function getReports(limit = 200): Promise<ReportRow[]> {
+  const sb = await createClient();
+  const { data, error } = await sb.from("royalty_reports").select(REPORT_COLS).order("created_at", { ascending: false }).limit(limit);
+  fail(error);
+  return (data ?? []).map(toReport);
+}
+
+export async function getReport(id: string): Promise<ReportRow | null> {
+  const sb = await createClient();
+  const { data } = await sb.from("royalty_reports").select(REPORT_COLS).eq("id", id).maybeSingle();
+  return data ? toReport(data) : null;
+}
+
+export interface ReportLine {
+  id: string;
+  work_title: string | null;
+  raw_work_no: string | null;
+  licensee: string | null;
+  publisher_name: string | null;
+  label_name: string | null;
+  artist_name: string | null;
+  gross_amount: number;
+  commission_pct: number;
+  commission_amount: number;
+  net_payable: number;
+  match_status: string;
+  work_id: string | null;
+}
+
+export async function getReportLines(id: string): Promise<ReportLine[]> {
+  const sb = await createClient();
+  const { data, error } = await sb
+    .from("v_royalty_lines")
+    .select("id, work_title, raw_work_no, licensee, publisher_name, label_name, artist_name, gross_amount, commission_pct, commission_amount, net_payable, match_status, work_id")
+    .eq("report_id", id)
+    .order("gross_amount", { ascending: false })
+    .limit(5000);
+  fail(error);
+  return (data ?? []).map((l) => ({
+    ...l,
+    gross_amount: Number(l.gross_amount),
+    commission_pct: Number(l.commission_pct),
+    commission_amount: Number(l.commission_amount),
+    net_payable: Number(l.net_payable),
+  })) as ReportLine[];
+}
+
+export async function reportFileLink(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const sb = await createClient();
+  const { data } = await sb.storage.from("royalty-reports").createSignedUrl(path, 60 * 30);
+  return data?.signedUrl ?? null;
+}
+
+export interface LabelMatchRow {
+  id: string;
+  name: string;
+  aliases: string[];
+}
+
+export async function getLabelsWithAliases(): Promise<LabelMatchRow[]> {
+  const sb = await createClient();
+  const { data, error } = await sb.from("labels").select("id, name, aliases").eq("is_active", true).order("name");
+  fail(error);
+  return (data ?? []) as LabelMatchRow[];
+}
+
+// ---------------------------------------------------------------------------
+// Session 3: commission per client (dashboard panel)
+// ---------------------------------------------------------------------------
+
+export interface ClientCommission {
+  kind: "label" | "artist";
+  id: string;
+  name: string;
+  label_name: string | null;
+  commission_pct: number;
+  is_default: boolean;
+  open_gross: number;
+  open_commission: number;
+}
+
+export async function getClientCommissions(): Promise<{ defaultPct: number; clients: ClientCommission[] }> {
+  const sb = await createClient();
+  const [{ data: list, error }, { data: setting }] = await Promise.all([
+    sb.rpc("client_commission_list"),
+    sb.from("app_settings").select("value").eq("key", "default_commission_pct").maybeSingle(),
+  ]);
+  fail(error);
+  return {
+    defaultPct: Number(setting?.value ?? 15),
+    clients: ((list ?? []) as ClientCommission[]).map((c) => ({
+      ...c,
+      commission_pct: Number(c.commission_pct),
+      open_gross: Number(c.open_gross),
+      open_commission: Number(c.open_commission),
+    })),
+  };
+}
