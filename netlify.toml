@@ -7,6 +7,11 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+  # Public Supabase settings. The publishable key is meant to reach every
+  # browser; data is protected by the database's row-level security rules.
+  # Never put the secret / service_role key here.
+  NEXT_PUBLIC_SUPABASE_URL = "https://zkfsnqdwbduvblorsyay.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_KXOgDUyouwncqMk5WL1wJQ_Xqn5wePC"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"
