@@ -76,7 +76,6 @@ body {
   background: var(--page);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-feature-settings: "tnum" 1;
   -webkit-font-smoothing: antialiased;
 }
 
