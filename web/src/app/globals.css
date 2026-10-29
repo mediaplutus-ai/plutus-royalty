@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+/* Plutus ledger palette
+   - net   : what reaches the rights holder (indigo)
+   - comm  : Plutus commission (teal)
+   - direct: admin-only, paid directly by the society (amber)
+   Validated for colour-blind separation in light and dark. Always shown with labels. */
+:root {
+  --page: #f2f3f6;
+  --surface: #ffffff;
+  --sunken: #f7f8fa;
+  --ink: #161926;
+  --ink-2: #4a5063;
+  --ink-3: #6b7185;
+  --line: #e1e4eb;
+  --nav: #1d2036;
+  --nav-ink: #c9cce0;
+  --nav-active: #ffffff;
+  --brand: #3949ab;
+  --net: #3949ab;
+  --comm: #00897b;
+  --direct: #c26a12;
+  --ok: #2e7d32;
+  --warn: #8d6e00;
+  --bad: #c62828;
+  --focus: #3949ab;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #11131b;
+    --surface: #1a1d29;
+    --sunken: #151824;
+    --ink: #e8eaf2;
+    --ink-2: #b4b8c8;
+    --ink-3: #8c91a5;
+    --line: #2b2f40;
+    --nav: #0c0e15;
+    --nav-ink: #9ea2b8;
+    --brand: #7584e0;
+    --net: #7584e0;
+    --comm: #26a69a;
+    --direct: #cc7f2e;
+    --ok: #66bb6a;
+    --warn: #d4b84a;
+    --bad: #ef6b6b;
+    --focus: #8c9bff;
+  }
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-nav: var(--nav);
+  --color-nav-ink: var(--nav-ink);
+  --color-brand: var(--brand);
+  --color-net: var(--net);
+  --color-comm: var(--comm);
+  --color-direct: var(--direct);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-sans: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--page);
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
