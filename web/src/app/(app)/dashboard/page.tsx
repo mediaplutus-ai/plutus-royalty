@@ -93,7 +93,7 @@ function Figure({ label, value, note }: { label: string; value: string; note: st
   return (
     <div className="bg-surface px-5 py-4">
       <dt className="text-sm text-ink-3">{label}</dt>
-      <dd className="num mt-1 text-2xl font-bold tracking-tight">{value}</dd>
+      <dd className="mt-1 text-2xl font-bold tracking-tight">{value}</dd>
       <dd className="mt-0.5 text-xs text-ink-3">{note}</dd>
     </div>
   );
@@ -127,12 +127,12 @@ function MoneyFlow({ k, viewer }: { k: Kpis; viewer: Viewer }) {
   return (
     <section className="rounded-lg border border-line bg-surface p-6 md:p-7">
       <h1 className="max-w-3xl text-[1.6rem] font-extrabold leading-snug tracking-tight md:text-[1.95rem]">
-        Plutus collected <span className="num">{money(k.lifetime_gross)}</span> for {who}, kept{" "}
-        <span className="num">{money(k.lifetime_commission)}</span> as commission, and{" "}
-        <span className="num">{money(k.lifetime_net)}</span> is {whose}.
+        Plutus collected <span>{money(k.lifetime_gross)}</span> for {who}, kept{" "}
+        <span>{money(k.lifetime_commission)}</span> as commission, and{" "}
+        <span>{money(k.lifetime_net)}</span> is {whose}.
       </h1>
       <p className="mt-2 max-w-2xl text-ink-2">
-        Societies also paid <span className="num font-semibold text-ink">{money(k.admin_only_lifetime)}</span> straight
+        Societies also paid <span className="font-semibold text-ink">{money(k.admin_only_lifetime)}</span> straight
         to {who === "you" ? "you" : "the rights holders"}. Plutus only tracks that money and takes no commission on it.
       </p>
 
@@ -158,7 +158,7 @@ function FlowLabel({ cls, title, value }: { cls: string; title: string; value: s
       <span className={`mt-1 h-3 w-3 shrink-0 rounded-sm ${cls}`} aria-hidden />
       <div>
         <p className="text-ink-2">{title}</p>
-        <p className="num font-bold">{value}</p>
+        <p className="font-bold">{value}</p>
       </div>
     </div>
   );
