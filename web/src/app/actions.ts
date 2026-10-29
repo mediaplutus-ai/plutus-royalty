@@ -18,6 +18,10 @@ export async function signIn(_prev: { error?: string } | undefined, formData: Fo
   if (error) return { error: "That email and password don't match. Check them and try again." };
 
   const h = await headers();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) await supabase.from("profiles").update({ last_login_at: new Date().toISOString() }).eq("id", user.id);
   await supabase.rpc("log_event", {
     p_action: "LOGIN",
     p_ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() || null,

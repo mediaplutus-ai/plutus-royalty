@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { RoyaltyStatus } from "@/lib/types";
 
 const STATUS: Record<RoyaltyStatus | string, { label: string; icon: string; cls: string }> = {
@@ -13,6 +14,18 @@ const STATUS: Record<RoyaltyStatus | string, { label: string; icon: string; cls:
   submitted: { label: "Submitted", icon: "◷", cls: "text-ink-2 bg-sunken border-line" },
   draft: { label: "Draft", icon: "○", cls: "text-ink-3 bg-sunken border-line" },
   inactive: { label: "Inactive", icon: "○", cls: "text-ink-3 bg-sunken border-line" },
+  disputed_work: { label: "Disputed", icon: "!", cls: "text-bad bg-sunken border-bad/40" },
+  under_review: { label: "Under review", icon: "◔", cls: "text-warn bg-sunken border-warn/40" },
+  needs_changes: { label: "Needs changes", icon: "!", cls: "text-bad bg-sunken border-bad/40" },
+  active: { label: "Active", icon: "✓", cls: "text-ok bg-sunken border-ok/40" },
+  expired: { label: "Expired", icon: "○", cls: "text-ink-3 bg-sunken border-line" },
+  terminated: { label: "Terminated", icon: "×", cls: "text-ink-3 bg-sunken border-line" },
+  invite_open: { label: "Waiting to join", icon: "◷", cls: "text-ink-2 bg-sunken border-line" },
+  invite_accepted: { label: "Joined", icon: "✓", cls: "text-ok bg-sunken border-ok/40" },
+  invite_revoked: { label: "Revoked", icon: "×", cls: "text-ink-3 bg-sunken border-line" },
+  invite_expired: { label: "Link expired", icon: "○", cls: "text-ink-3 bg-sunken border-line" },
+  user_on: { label: "Can sign in", icon: "✓", cls: "text-ok bg-sunken border-ok/40" },
+  user_off: { label: "Switched off", icon: "○", cls: "text-bad bg-sunken border-bad/40" },
 };
 
 export function StatusChip({ status }: { status: string }) {
@@ -69,6 +82,39 @@ export function Panel({
       )}
       {children}
     </section>
+  );
+}
+
+/** Row of page tabs driven by ?tab= in the URL. */
+export function Tabs({ tabs, current }: { tabs: { key: string; label: string; href: string }[]; current: string }) {
+  return (
+    <nav aria-label="Sections" className="mb-6 flex flex-wrap gap-1 border-b border-line">
+      {tabs.map((t) => (
+        <Link
+          key={t.key}
+          href={t.href}
+          aria-current={t.key === current ? "page" : undefined}
+          className={`-mb-px rounded-t-md border-b-2 px-3 py-2 text-sm font-semibold ${
+            t.key === current ? "border-brand text-ink" : "border-transparent text-ink-3 hover:text-ink"
+          }`}
+        >
+          {t.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+export function LinkButton({ href, children, tone = "primary" }: { href: string; children: React.ReactNode; tone?: "primary" | "plain" }) {
+  return (
+    <Link
+      href={href}
+      className={`inline-block rounded-md px-4 py-2 text-sm font-semibold ${
+        tone === "primary" ? "bg-brand text-white hover:opacity-90" : "border border-line hover:bg-sunken"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
 

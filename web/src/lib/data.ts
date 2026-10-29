@@ -36,7 +36,7 @@ export async function getViewer(): Promise<Viewer> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, is_active, labels(name)")
+    .select("id, email, full_name, role, label_id, is_active, labels(name)")
     .eq("id", user.id)
     .single();
 
@@ -49,6 +49,7 @@ export async function getViewer(): Promise<Viewer> {
     fullName: profile.full_name ?? profile.email,
     role: profile.role as AppRole,
     labelName: label?.name ?? null,
+    labelId: profile.label_id ?? null,
   };
 }
 

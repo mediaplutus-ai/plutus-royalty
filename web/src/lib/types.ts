@@ -14,6 +14,7 @@ export interface Viewer {
   fullName: string;
   role: AppRole;
   labelName?: string | null;
+  labelId?: string | null;
 }
 
 export interface Kpis {

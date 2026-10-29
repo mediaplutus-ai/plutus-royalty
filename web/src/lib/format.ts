@@ -38,3 +38,20 @@ export const territoryName: Record<string, string> = {
   AU: "Australia",
   WORLD: "Worldwide",
 };
+
+const day = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+/** 29 Oct 2026 */
+export function dateLabel(v?: string | null): string {
+  return v ? day.format(new Date(v)) : "—";
+}
+
+export const creatorRoleLabel: Record<string, string> = {
+  composer: "Composer",
+  author: "Author (lyricist)",
+  composer_author: "Composer & author",
+  arranger: "Arranger",
+  original_publisher: "Publisher",
+  sub_publisher: "Sub-publisher",
+  performer: "Performer",
+};

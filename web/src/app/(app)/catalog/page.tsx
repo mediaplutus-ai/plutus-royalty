@@ -1,5 +1,6 @@
-import { PageTitle, StatusChip } from "@/components/ui";
-import { getCatalog } from "@/lib/data";
+import Link from "next/link";
+import { LinkButton, PageTitle, StatusChip } from "@/components/ui";
+import { getCatalog, getViewer } from "@/lib/data";
 import { territoryName } from "@/lib/format";
 
 const ROLE: Record<string, string> = {
@@ -12,8 +13,10 @@ const ROLE: Record<string, string> = {
   performer: "Performer",
 };
 
-export default async function CatalogPage() {
-  const rows = await getCatalog();
+export default async function CatalogPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+  const [rows, viewer, { saved }] = await Promise.all([getCatalog(), getViewer(), searchParams]);
+  const canEdit = viewer.role === "super_admin" || viewer.role === "label_admin";
+  const savedTitle = saved ? rows.find((r) => r.work_id === saved)?.title : null;
   // group the ownership rows under each work
   const works = new Map<string, typeof rows>();
   rows.forEach((r) => works.set(r.work_id, [...(works.get(r.work_id) ?? []), r]));
@@ -24,6 +27,17 @@ export default async function CatalogPage() {
         title="Works & catalog"
         intro="Every song, its codes, and who owns which share. Ownership of one work always adds up to 100% or less."
       />
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        {canEdit && <LinkButton href="/catalog/new">Add a work</LinkButton>}
+        <LinkButton href="/submissions/new" tone="plain">
+          Submit a new work for IPRS registration
+        </LinkButton>
+      </div>
+      {savedTitle && (
+        <p role="status" className="mb-5 rounded-md border border-ok/40 bg-surface px-3 py-2 text-sm text-ok">
+          {savedTitle} saved.
+        </p>
+      )}
       <div className="overflow-x-auto rounded-lg border border-line bg-surface">
         <table className="w-full min-w-[860px] text-sm">
           <thead>
@@ -50,7 +64,14 @@ export default async function CatalogPage() {
                 <tr key={`${o.work_id}-${i}`} className={i === owners.length - 1 ? "border-b border-line last:border-0" : ""}>
                   {i === 0 && (
                     <>
-                      <td rowSpan={owners.length} className="px-4 py-2.5 align-top font-semibold">{o.title}</td>
+                      <td rowSpan={owners.length} className="px-4 py-2.5 align-top">
+                        <span className="font-semibold">{o.title}</span>
+                        {canEdit && (
+                          <Link href={`/catalog/${o.work_id}/edit`} className="mt-0.5 block text-xs font-semibold text-brand hover:underline">
+                            Edit
+                          </Link>
+                        )}
+                      </td>
                       <td rowSpan={owners.length} className="num px-3 py-2.5 align-top text-ink-2">{o.iswc ?? "Not assigned"}</td>
                       <td rowSpan={owners.length} className="num px-3 py-2.5 align-top text-ink-2">
                         {o.isrc?.length ? o.isrc.join(", ") : "None"}

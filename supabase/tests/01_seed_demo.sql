@@ -13,6 +13,9 @@ insert into labels (id, name, gstin) values
  ('10000000-0000-0000-0000-000000000001', 'Sunrise Records',  '09ABCDE1234F1Z5'),
  ('10000000-0000-0000-0000-000000000002', 'Moonbeam Music',   null);
 
+-- Session 2: accounts without an invitation start switched off; the demo users are pre-approved
+update profiles set is_active = true;
+
 update profiles set role = 'super_admin' where id = '00000000-0000-0000-0000-000000000001';
 update profiles set role = 'label_admin', label_id = '10000000-0000-0000-0000-000000000001' where id = '00000000-0000-0000-0000-000000000002';
 update profiles set role = 'label_admin', label_id = '10000000-0000-0000-0000-000000000002' where id = '00000000-0000-0000-0000-000000000003';

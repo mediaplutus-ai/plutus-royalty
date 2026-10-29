@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+const PUBLIC_PATHS = ["/login", "/auth", "/join"];
 
 /**
  * Runs before every page:
@@ -44,7 +44,8 @@ export async function proxy(request: NextRequest) {
     to.searchParams.set("next", path);
     return NextResponse.redirect(to);
   }
-  if (user && path === "/login") {
+  // ?error=... means the app sent a signed-in but switched-off account here: show the message, no loop
+  if (user && path === "/login" && !request.nextUrl.searchParams.has("error")) {
     const to = request.nextUrl.clone();
     to.pathname = "/dashboard";
     to.search = "";
